@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, render_template
+from flask import Flask, jsonify, render_template, redirect
 from flask_cors import CORS
 import os
 from dotenv import load_dotenv
@@ -92,6 +92,14 @@ def create_app(config_name: str = 'development'):
     @app.route('/', methods=['GET'])
     def root():
         return render_template('index.html')
+
+    # Dashboard route - Serve dashboard.html (requires authentication)
+    @app.route('/dashboard', methods=['GET'])
+    def dashboard():
+        from flask_security import current_user
+        if not current_user.is_authenticated:
+            return redirect('/')
+        return render_template('dashboard.html')
 
     # API info endpoint
     @app.route('/api', methods=['GET'])

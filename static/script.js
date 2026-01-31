@@ -35,12 +35,8 @@ function togglePortal() {
 
 function openAuth(role) {
     if (currentUser) {
-        // User already logged in, navigate to section
-        if (role === 'Shopper') {
-            portalNavigate('shoppers');
-        } else if (role === 'Retailer') {
-            portalNavigate('retailers');
-        }
+        // User already logged in, navigate to dashboard
+        window.location.href = '/dashboard';
         return;
     }
 
@@ -143,8 +139,9 @@ async function handleAuth(e) {
                         username: loginData.username
                     };
                     closeAuth();
-                    updateSignInButton();
-                    alert('Account created and signed in successfully!');
+                    // Redirect to dashboard immediately after successful registration and login
+                    window.location.href = '/dashboard';
+                    return;
                 }
             } else {
                 const error = await response.json();
@@ -165,7 +162,9 @@ async function handleAuth(e) {
                     username: data.username
                 };
                 closeAuth();
-                updateSignInButton();
+                // Redirect to dashboard immediately after successful login
+                window.location.href = '/dashboard';
+                return;
             } else {
                 const error = await response.json();
                 alert('Sign in failed: ' + error.error);

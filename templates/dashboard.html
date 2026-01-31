@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rooted Dashboard | Produce Scanner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../static/style.css">
+</head>
+
+<body class="bg-[#1a1a1a] text-white font-['Plus_Jakarta_Sans']">
+
+    <header class="fixed top-0 left-0 right-0 z-[100] px-10 py-6 bg-[#1a1a1a]/80 backdrop-blur-lg border-b border-white/5">
+        <div class="flex items-center justify-between max-w-7xl mx-auto">
+            <div class="flex items-center gap-3">
+                <div class="w-4 h-4 rounded-full border-[3px] border-[#1DB954]"></div>
+                <span class="text-lg font-900 tracking-tighter uppercase text-white">Rooted</span>
+            </div>
+            <div id="user-info" class="flex items-center gap-6">
+                <div class="text-right">
+                    <p id="user-email" class="text-sm font-600"></p>
+                    <p class="text-xs text-slate-400">Produce Scanner</p>
+                </div>
+                <button onclick="logout()"
+                    class="bg-red-500/20 text-red-400 px-4 py-2 rounded-lg text-xs font-900 uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all">
+                    Logout
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="pt-28 pb-16 px-10 max-w-7xl mx-auto">
+
+        <!-- Scanner Section -->
+        <div class="mb-12">
+            <h1 class="text-5xl font-900 tracking-tighter mb-2">Scan Produce</h1>
+            <p class="text-slate-400 text-sm uppercase tracking-widest font-800">Analyze freshness with AI</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-12">
+            <!-- Single Scan Card -->
+            <div class="lg:col-span-2 pop-card !opacity-100 !transform-none">
+                <h2 class="text-2xl font-900 mb-6">Single Item Scan</h2>
+                <div class="space-y-4">
+                    <div>
+                        <label class="text-[10px] font-900 uppercase tracking-widest text-slate-400 ml-2 block mb-2">
+                            Produce Description
+                        </label>
+                        <textarea id="produce-description" placeholder="e.g., Red apple, firm, no bruises..."
+                            class="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 focus:outline-none focus:border-emerald-500 transition-colors text-sm h-24 resize-none"
+                            required></textarea>
+                    </div>
+                    <button onclick="scanSingle()"
+                        class="w-full primary-btn-animated !padding-[1rem_2.5rem] bg-emerald-500 text-black font-900 rounded-xl py-3">
+                        <span id="scan-btn-text">Scan Item</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="space-y-4">
+                <div class="pop-card !opacity-100 !transform-none">
+                    <h3 class="text-lg font-900 mb-4">Quick Actions</h3>
+                    <button onclick="startNewSession()"
+                        class="w-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-4 py-3 rounded-xl font-900 text-xs uppercase tracking-widest hover:bg-emerald-500 hover:text-black transition-all mb-2">
+                        New Session
+                    </button>
+                    <button onclick="toggleBatchMode()"
+                        class="w-full bg-blue-500/10 text-blue-400 border border-blue-500/20 px-4 py-3 rounded-xl font-900 text-xs uppercase tracking-widest hover:bg-blue-500 hover:text-black transition-all">
+                        Batch Scan
+                    </button>
+                </div>
+                <div id="session-info" class="pop-card !opacity-100 !transform-none hidden">
+                    <p class="text-[10px] font-900 uppercase tracking-widest text-slate-400 mb-2">Session</p>
+                    <p id="session-id" class="text-sm font-600 break-all"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Batch Mode Section -->
+        <div id="batch-section" class="hidden mb-12 pop-card !opacity-100 !transform-none">
+            <h2 class="text-2xl font-900 mb-6">Batch Scan Mode</h2>
+            <div class="space-y-4">
+                <div>
+                    <label class="text-[10px] font-900 uppercase tracking-widest text-slate-400 ml-2 block mb-2">
+                        Add Items (one per line)
+                    </label>
+                    <textarea id="batch-items" placeholder="Red apple, firm&#10;Banana, yellow&#10;Spinach, wilted..."
+                        class="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 focus:outline-none focus:border-emerald-500 transition-colors text-sm h-32 resize-none"
+                        required></textarea>
+                </div>
+                <button onclick="scanBatch()"
+                    class="w-full primary-btn-animated !padding-[1rem_2.5rem] bg-emerald-500 text-black font-900 rounded-xl py-3">
+                    <span id="batch-btn-text">Scan Batch</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="results-section" class="hidden mb-12">
+            <h2 class="text-3xl font-900 tracking-tighter mb-6">Scan Results</h2>
+            <div id="results-container" class="space-y-4"></div>
+        </div>
+
+        <!-- Summary Section -->
+        <div id="summary-section" class="hidden mb-12 grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="pop-card !opacity-100 !transform-none text-center">
+                <p class="text-[10px] font-900 uppercase tracking-widest text-emerald-400 mb-2">Total Scanned</p>
+                <p id="summary-total" class="text-3xl font-900">0</p>
+            </div>
+            <div class="pop-card !opacity-100 !transform-none text-center">
+                <p class="text-[10px] font-900 uppercase tracking-widest text-orange-400 mb-2">Expiring Soon</p>
+                <p id="summary-expiring" class="text-3xl font-900">0</p>
+            </div>
+            <div class="pop-card !opacity-100 !transform-none text-center">
+                <p class="text-[10px] font-900 uppercase tracking-widest text-red-400 mb-2">Expired</p>
+                <p id="summary-expired" class="text-3xl font-900">0</p>
+            </div>
+            <div class="pop-card !opacity-100 !transform-none text-center">
+                <p class="text-[10px] font-900 uppercase tracking-widest text-green-400 mb-2">Healthy</p>
+                <p id="summary-healthy" class="text-3xl font-900">0</p>
+            </div>
+        </div>
+
+        <!-- Recent Scans Section -->
+        <div id="recent-section" class="mb-12">
+            <h2 class="text-3xl font-900 tracking-tighter mb-6">Recent Scans</h2>
+            <div id="recent-container" class="space-y-3"></div>
+        </div>
+
+    </main>
+
+    <!-- Storage Tips Modal -->
+    <div id="tips-modal"
+        class="fixed inset-0 z-[500] bg-black/60 backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300 flex items-center justify-center p-4">
+        <div class="bg-[#222] border border-white/10 w-full max-w-md rounded-[32px] p-10 relative">
+            <button onclick="closeTipsModal()"
+                class="absolute top-6 right-6 text-white/30 hover:text-white transition-colors">✕</button>
+            <h3 id="tips-produce" class="text-3xl font-900 tracking-tighter mb-6 text-white"></h3>
+            <p id="tips-content" class="text-slate-300 leading-relaxed mb-8"></p>
+            <button onclick="closeTipsModal()"
+                class="w-full bg-emerald-500 text-black font-900 uppercase tracking-widest py-3 rounded-xl hover:scale-[1.02] transition-transform">
+                Close
+            </button>
+        </div>
+    </div>
+
+    <script src="../static/dashboard.js"></script>
+</body>
+
+</html>
