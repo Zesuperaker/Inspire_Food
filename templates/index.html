@@ -1,51 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
 
+<!--Import Libraries: Tailwind CSS & Google Fonts-->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rooted | Bridging the 46.5% Waste Gap</title>
+    <title>Rooted</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800;900&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../static/style.css">
 </head>
 
 <body class="bg-[#1a1a1a] text-white font-['Plus_Jakarta_Sans']">
 
+    <!--Sign-In Portal Pop Up-->
     <div id="portal-overlay"
         class="fixed inset-0 z-[400] bg-[#1a1a1a]/95 backdrop-blur-2xl opacity-0 pointer-events-none transition-all duration-500 flex items-center justify-center p-6">
+        
+        <!--Close Popup Toggle-->
         <button onclick="togglePortal()"
             class="absolute top-10 right-10 text-white/50 hover:text-white uppercase font-900 text-xs tracking-widest flex items-center gap-2 group">
             Close <span
                 class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center group-hover:border-emerald-500 transition-colors">×</span>
         </button>
 
+        <!--Popup Content-->
         <div class="max-w-4xl w-full text-center">
-            <h2 class="text-5xl font-900 tracking-tighter mb-2">Select Your <span class="text-emerald-500">Node.</span>
-            </h2>
-            <p class="text-slate-400 mb-12 text-xs uppercase tracking-[0.2em] font-800">Hackathon Pitch: Solving the
-                Waste Paradox</p>
+            <h2 class="text-5xl font-900 tracking-tighter mb-2">Choose Your <span class="text-emerald-500">Experience.</span></h2>
+            <p class="text-slate-400 mb-12 text-xs uppercase tracking-[0.2em] font-800">Hackathon Pitch: Solving the Waste Paradox</p>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!--Shopper Card-->
                 <div onclick="openAuth('Shopper')" class="pop-card group cursor-pointer">
-                    <h3  id="shopperSignIn "class="text-2xl font-900 mb-2 group-hover:text-emerald-400 transition-colors">I am a Shopper
-                    </h3>
-                    <p class="text-sm text-slate-400">Scan receipts to track essentials and receive localized sale
-                        notifications.</p>
+                    <div class="text-4xl mb-6">🛒</div>
+                    <h3 class="text-2xl font-900 mb-2 group-hover:text-emerald-400 transition-colors">I am a Shopper</h3>
+                    <p class="text-sm text-slate-400">Scan receipts to track essentials and receive localized sale notifications.</p>
                     <div class="pop-learn-more mt-6">Open Dashboard</div>
                 </div>
+
+                <!--Retailer Card-->
                 <div onclick="openAuth('Retailer')" class="pop-card group cursor-pointer">
-                    <h3 class="text-2xl font-900 mb-2 group-hover:text-emerald-400 transition-colors">I am a Retailer
-                    </h3>
-                    <p class="text-sm text-slate-400">Deploy AI aisle-scanning to maintain inventory and slash prices
-                        automatically.</p>
-                    <div id="buisnessSignIn" class="pop-learn-more mt-6">Inventory AI</div>
+                    <div class="text-4xl mb-6">🥬</div>
+                    <h3 class="text-2xl font-900 mb-2 group-hover:text-emerald-400 transition-colors">I am a Retailer</h3>
+                    <p class="text-sm text-slate-400">Deploy AI aisle-scanning to maintain inventory and slash prices automatically.</p>
+                    <div class="pop-learn-more mt-6">Inventory AI</div>
                 </div>
+
             </div>
+            
         </div>
+
     </div>
 
+
+    <!--Customer/Retailer Authentication-->
     <div id="auth-modal"
         class="fixed inset-0 z-[500] bg-black/60 backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300 flex items-center justify-center p-4">
         <div class="bg-[#222] border border-white/10 w-full max-w-md rounded-[32px] p-10 relative overflow-hidden">
@@ -53,24 +61,27 @@
             <button onclick="closeAuth()"
                 class="absolute top-6 right-6 text-white/30 hover:text-white transition-colors">✕</button>
             <h3 id="auth-title" class="text-3xl font-900 tracking-tighter mb-2 text-white">Portal Access</h3>
-            <p id="auth-subtitle" class="text-sm text-slate-400 mb-8 uppercase tracking-widest font-800">Enter
-                Credentials</p>
+            <p id="auth-subtitle" class="text-sm text-slate-400 mb-8 uppercase tracking-widest font-800">Enter Credentials</p>
 
+            <!--Customer/Retailer Form-->
             <form id="auth-form" class="space-y-4">
+
+                <!--Email Field-->
                 <div>
-                    <label class="text-[10px] font-900 uppercase tracking-widest text-slate-500 ml-2">Email
-                        Address</label>
+                    <label class="text-[10px] font-900 uppercase tracking-widest text-slate-500 ml-2">Email Address</label>
                     <input id="auth-email" type="email" placeholder="name@example.com"
                         class="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 focus:outline-none focus:border-emerald-500 transition-colors text-sm"
                         required>
                 </div>
 
+                <!--Username Field (Hidden by Default)-->
                 <div id="username-field" style="display: none;">
                     <label class="text-[10px] font-900 uppercase tracking-widest text-slate-500 ml-2">Username</label>
                     <input id="auth-username" type="text" placeholder="Choose a username"
                         class="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 focus:outline-none focus:border-emerald-500 transition-colors text-sm">
                 </div>
 
+                <!--Password Field-->
                 <div>
                     <label class="text-[10px] font-900 uppercase tracking-widest text-slate-500 ml-2">Password</label>
                     <input id="auth-password" type="password" placeholder="••••••••"
@@ -78,23 +89,29 @@
                         required>
                 </div>
 
+                <!--Submit Button-->
                 <button id="auth-submit" type="submit"
-                    class="w-full bg-emerald-500 text-[#1a1a1a] font-900 uppercase tracking-widest py-4 rounded-2xl hover:scale-[1.02] transition-transform active:scale-95">Sign
-                    In</button>
+                    class="w-full bg-emerald-500 text-[#1a1a1a] font-900 uppercase tracking-widest py-4 rounded-2xl hover:scale-[1.02] transition-transform active:scale-95">Sign In
+                </button>
             </form>
 
+            <!--Sign Up-->
             <div class="border-t border-white/10 mt-6 pt-6">
                 <p class="text-center text-slate-400 text-xs mb-3">
                     <span id="toggle-text">Don't have an account?</span>
                 </p>
+                
+                <!--Sign Up Button-->
                 <button id="form-toggle" type="button"
                     class="w-full border-2 border-emerald-500 text-emerald-400 font-900 uppercase tracking-widest py-3 rounded-2xl hover:bg-emerald-500 hover:text-[#1a1a1a] transition-all">
                     Sign Up
                 </button>
             </div>
+
         </div>
     </div>
 
+    <!--Sticky Navigation Bar-->
     <header class="fixed top-6 left-0 right-0 z-[100] px-10 flex items-center justify-between">
         <div class="w-32 hidden md:block"></div>
         <nav class="glass-capsule h-14 flex items-center justify-between px-6 relative border border-white/5 gap-4">
@@ -104,32 +121,36 @@
             </div>
             <div class="flex items-center gap-1 relative">
                 <div id="nav-indicator" class="selection-pill-clear"></div>
+
+                <!--Nav Links-->
                 <a href="#home" data-section="home" class="nav-link active" onclick="movePill(this)">Core</a>
                 <a href="#shoppers" data-section="shoppers" class="nav-link" onclick="movePill(this)">Shoppers</a>
                 <a href="#retailers" data-section="retailers" class="nav-link" onclick="movePill(this)">Retailers</a>
                 <a href="#impact" data-section="impact" class="nav-link" onclick="movePill(this)">Impact</a>
             </div>
         </nav>
+
+        <!--Sign In Button Top Right-->
         <div class="w-32 flex justify-end">
-            <div id="sign-in-btn" class="bg-white/5 hover:bg-emerald-500 hover:text-[#1a1a1a] border border-white/10 px-6 py-2.5 rounded-full text-[10px] font-900 uppercase tracking-widest transition-all">
-                Sign In
-            </div>
+            <div id="sign-in-btn" class="bg-white/5 hover:bg-emerald-500 hover:text-[#1a1a1a] border border-white/10 px-6 py-2.5 rounded-full text-[10px] font-900 uppercase tracking-widest transition-all">Sign In</div>
         </div>
     </header>
 
     <main class="snap-container">
+
+        <!--Home Section-->
         <section id="home" class="snap-section flex items-center px-[10%] bg-hero">
             <div class="max-w-4xl">
                 <div
                     class="inline-block px-3 py-1 bg-white/10 text-white text-[10px] font-900 uppercase tracking-widest rounded-full mb-4">
-                    The 2025 Cost-of-Living Squeeze
+                    The Cost of Living Squeeze & Waste Paradox
                 </div>
                 <h1 class="text-6xl md:text-8xl font-900 tracking-tighter leading-[0.9] mb-6">
-                    46.5% Waste.<br><span class="text-[#1DB954]">4.7% Squeeze.</span>
+                    Feed People.<br><span class="text-[#1DB954]">Not Landfills.</span>
                 </h1>
                 <p class="text-xl text-slate-400 mb-10 max-w-xl">
-                    Families face record food prices while half of Canada's edible food is wasted. We bridge the gap
-                    between invisible surplus and community need.
+                    AI-driven ecosystem to digitize invisible inventory and bridge the gap between retail surplus &
+                    consumer affordability
                 </p>
                 <div class="flex gap-4">
                     <button onclick="openAuth('Shopper')" class="primary-btn-animated">Track My Essentials</button>
@@ -138,57 +159,65 @@
             </div>
         </section>
 
+        <!--Shoppers Section-->
         <section id="shoppers" class="snap-section flex flex-col items-center justify-center px-6">
             <div class="text-center mb-12">
-                <h2 class="text-5xl font-900 tracking-tighter">Budgeting <span class="text-[#1DB954]">Smarter.</span>
+                <h2 class="text-5xl font-900 tracking-tighter">Budgeting made <span class="text-[#1DB954]">Smarter.</span>
                 </h2>
                 <p class="text-slate-400 mt-2 uppercase text-[10px] font-800 tracking-widest">Ending Price Volatility
                     for Families</p>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl w-full">
+                
+                <!--Summary of Shopper Role-->
                 <div class="p-10 rounded-[32px] bg-white/5 border border-white/10 backdrop-blur-md">
                     <div class="text-emerald-500 font-900 text-xs mb-4 uppercase tracking-widest">Receipt Scanning</div>
                     <h3 class="text-2xl font-800 mb-2 text-white">Track Frequently Shopped Items</h3>
                     <p class="text-slate-400 mb-8">Scan your grocery receipts to build a digital profile of your
-                        essentials and monitor pricing trends.</p>
+                        essentials and monitor pricing trends</p>
+                    
                     <button onclick="openAuth('Shopper')"
-                        class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-6 py-3 rounded-xl font-900 text-xs uppercase tracking-widest hover:bg-emerald-500 hover:text-black transition-all">Start
-                        Scanning</button>
+                        class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-6 py-3 rounded-xl font-900 text-xs uppercase tracking-widest hover:bg-emerald-500 hover:text-black transition-all">Start Scanning
+                    </button>
+
                 </div>
                 <div class="p-10 rounded-[32px] bg-white/5 border border-white/10 backdrop-blur-md">
-                    <div class="text-emerald-500 font-900 text-xs mb-4 uppercase tracking-widest">Smart Notifications
-                    </div>
+                    <div class="text-emerald-500 font-900 text-xs mb-4 uppercase tracking-widest">Smart Notifications</div>
                     <h3 class="text-2xl font-800 mb-2 text-white">Receive Sale Alerts</h3>
                     <p class="text-slate-400 mb-8">Get notified instantly when your tracked items are discounted at
-                        local stores before they expire.</p>
+                        local stores before they expire</p>
                     <button onclick="openAuth('Shopper')"
-                        class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-6 py-3 rounded-xl font-900 text-xs uppercase tracking-widest hover:bg-emerald-500 hover:text-black transition-all">Setup
-                        Alerts</button>
+                        class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-6 py-3 rounded-xl font-900 text-xs uppercase tracking-widest hover:bg-emerald-500 hover:text-black transition-all">Setup Alerts
+                    </button>
                 </div>
             </div>
         </section>
 
+        <!--Retailers Section-->
         <section id="retailers" class="snap-section flex flex-col items-center justify-center px-6">
             <div
                 class="max-w-5xl w-full p-12 rounded-[40px] bg-[#1DB954]/5 border border-[#1DB954]/20 relative overflow-hidden">
                 <div class="scanner-line"></div>
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                   
+                    <!--Summary of Retailer Role-->
                     <div>
                         <h2 class="text-5xl font-900 tracking-tighter mb-6">Inventory <span
                                 class="text-[#1DB954]">AI.</span></h2>
                         <p class="text-lg text-slate-300 mb-8">
-                            Empowering grocers to maintain invisible inventory. Scan the produce aisle—our image
-                            classification model identifies soon-to-expire items and slashes prices automatically.
+                            Reduce waste. Maximize profits. Increase customer accesibility.
+                            Detect imminent waste via image classification models and automate dynamic pricing to clear inventory faster and efficiently.
                         </p>
-                        <button onclick="openAuth('Retailer')" class="primary-btn-animated">Launch Scanning
-                            Model</button>
+                        <button onclick="openAuth('Retailer')" class="primary-btn-animated">Launch Scanning Model</button>
                     </div>
+
                     <div class="bg-black/40 rounded-3xl p-6 border border-white/5 flex flex-col justify-center">
                         <div class="mb-4 flex justify-between items-center">
-                            <span class="text-[10px] font-900 text-emerald-500 uppercase tracking-widest">AI Vision
-                                Active</span>
+                            <span class="text-[10px] font-900 text-emerald-500 uppercase tracking-widest">AI Vision Active</span>
                         </div>
                         <div class="space-y-3">
+
+                            <!--Mock Item-->
                             <div
                                 class="h-12 bg-white/5 rounded-xl border border-white/5 flex items-center px-4 justify-between">
                                 <span class="text-sm font-600">Produce: Organic Bananas</span>
@@ -196,39 +225,48 @@
                                     class="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded-full uppercase font-900">Slash
                                     Price 40%</span>
                             </div>
+                            
+                            <!--Mock Item-->
                             <div
                                 class="h-12 bg-white/5 rounded-xl border border-white/5 flex items-center px-4 justify-between">
                                 <span class="text-sm font-600">Produce: Spinach</span>
                                 <span
-                                    class="text-[10px] bg-orange-500/20 text-orange-400 px-2 py-1 rounded-full uppercase font-900">Near
-                                    Expiry Alert</span>
+                                    class="text-[10px] bg-orange-500/20 text-orange-400 px-2 py-1 rounded-full uppercase font-900">Near Expiry Alert
+                                </span>
                             </div>
+
                         </div>
                     </div>
+                </div> 
+            </div>
+        </section>
+
+
+        <!--Impact Section-->
+        <section id="impact" class="snap-section flex flex-col items-center justify-center px-6">
+            <h2 class="text-5xl font-900 tracking-tighter mb-16 text-center">Global Impact</h2>
+            <div class="flex flex-wrap justify-center gap-12 text-center max-w-6xl">
+                
+                <!--Stat Card-->
+                <div class="w-64 p-8 rounded-3xl bg-white/5 border border-white/5">
+                    <div class="text-4xl font-900 text-[#1DB954] tracking-tighter">NO POVERTY</div>
+                    <p class="uppercase text-[10px] font-800 tracking-widest text-slate-500 mt-4">United Nations<br>Sustainable Development Goal #1</p>
+                </div>
+                
+                <!--Stat Card-->
+                <div class="w-64 p-8 rounded-3xl bg-[#1DB954] text-[#1a1a1a]">
+                    <div class="text-4xl font-900 tracking-tighter">ZERO HUNGER</div>
+                    <p class="uppercase text-[10px] font-900 tracking-widest opacity-70 mt-4">United Nations<br>Sustainable Development Goal #2</p>
+                </div>
+                
+                <!--Stat Card-->
+                <div class="w-64 p-8 rounded-3xl bg-white/5 border border-white/5">
+                    <div class="text-3xl font-900 text-[#1DB954] tracking-tighter">REDUCED INEQUALITIES</div>
+                    <p class="uppercase text-[10px] font-800 tracking-widest text-slate-500 mt-4">United Nations<br>Sustainable Development Goal #10</p>
                 </div>
             </div>
         </section>
 
-        <section id="impact" class="snap-section flex flex-col items-center justify-center px-6">
-            <h2 class="text-5xl font-900 tracking-tighter mb-16 text-center">Solving the Waste Paradox</h2>
-            <div class="flex flex-wrap justify-center gap-12 text-center max-w-6xl">
-                <div class="w-64 p-8 rounded-3xl bg-white/5 border border-white/5">
-                    <div class="text-6xl font-900 text-[#1DB954] tracking-tighter">4.7%</div>
-                    <p class="uppercase text-[10px] font-800 tracking-widest text-slate-500 mt-4">Rising Food
-                        Cost<br>(2025 Estimate)</p>
-                </div>
-                <div class="w-64 p-8 rounded-3xl bg-[#1DB954] text-[#1a1a1a]">
-                    <div class="text-6xl font-900 tracking-tighter">46.5%</div>
-                    <p class="uppercase text-[10px] font-900 tracking-widest opacity-70 mt-4">Total Edible
-                        Food<br>Wasted in Canada</p>
-                </div>
-                <div class="w-64 p-8 rounded-3xl bg-white/5 border border-white/5">
-                    <div class="text-6xl font-900 text-[#1DB954] tracking-tighter">ZERO</div>
-                    <p class="uppercase text-[10px] font-800 tracking-widest text-slate-500 mt-4">Fragmented
-                        Silos<br>Remaining</p>
-                </div>
-            </div>
-        </section>
     </main>
 
     <script src="../static/script.js"></script>
