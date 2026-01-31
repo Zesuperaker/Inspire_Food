@@ -41,11 +41,11 @@ def start_session():
 @login_required  # Require authentication
 def scan_single():
     """
-    Scan a single produce item (Protected - requires authentication)
+    Scan a single produce item from image (Protected - requires authentication)
 
     Expected JSON:
     {
-        "produce_description": str,
+        "image_data": str (base64 image),
         "session_id": str
     }
 
@@ -65,18 +65,18 @@ def scan_single():
             'error': 'Request body is required'
         }), 400
 
-    produce_description = data.get('produce_description')
+    image_data = data.get('image_data')
     session_id = data.get('session_id')
 
-    if not produce_description or not session_id:
+    if not image_data or not session_id:
         return jsonify({
             'success': False,
-            'error': 'produce_description and session_id are required'
+            'error': 'image_data and session_id are required'
         }), 400
 
     try:
         result = scan_service.scan_single_produce(
-            produce_description,
+            image_data,
             session_id,
             user_id=current_user.id
         )
@@ -94,11 +94,11 @@ def scan_single():
 @login_required  # Require authentication
 def scan_batch():
     """
-    Scan multiple produce items in batch (Protected - requires authentication)
+    Scan multiple produce items from images (Protected - requires authentication)
 
     Expected JSON:
     {
-        "produce_list": [str, str, ...],
+        "images": [base64_string, base64_string, ...],
         "session_id": str
     }
 
@@ -125,24 +125,24 @@ def scan_batch():
             'error': 'Request body is required'
         }), 400
 
-    produce_list = data.get('produce_list', [])
+    images = data.get('images', [])
     session_id = data.get('session_id')
 
-    if not isinstance(produce_list, list) or not session_id:
+    if not isinstance(images, list) or not session_id:
         return jsonify({
             'success': False,
-            'error': 'produce_list (array) and session_id are required'
+            'error': 'images (array) and session_id are required'
         }), 400
 
-    if len(produce_list) == 0:
+    if len(images) == 0:
         return jsonify({
             'success': False,
-            'error': 'produce_list cannot be empty'
+            'error': 'images cannot be empty'
         }), 400
 
     try:
         result = scan_service.scan_batch_produce(
-            produce_list,
+            images,
             session_id,
             user_id=current_user.id
         )

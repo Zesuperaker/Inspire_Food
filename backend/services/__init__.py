@@ -24,12 +24,12 @@ class ProduceScanService:
         session_id = self.db_service.create_scan_session(user_id=user_id)
         return session_id
 
-    def scan_single_produce(self, produce_description: str, session_id: str, user_id: int = None) -> Dict:
+    def scan_single_produce(self, image_data: str, session_id: str, user_id: int = None) -> Dict:
         """
-        Scan a single produce item
+        Scan a single produce item from image
 
         Args:
-            produce_description: Description of the produce
+            image_data: Base64 encoded image data
             session_id: Current session ID
             user_id: Optional user ID to associate with scan
 
@@ -37,8 +37,8 @@ class ProduceScanService:
             Dict with produce analysis and database ID
         """
         try:
-            # Analyze produce with AI
-            analysis = self.ai_service.analyze_produce(produce_description)
+            # Analyze produce with AI using image
+            analysis = self.ai_service.analyze_produce_from_image(image_data)
 
             # Generate unique scan ID for this item
             scan_id = str(uuid4())[:12]
@@ -68,7 +68,8 @@ class ProduceScanService:
                     'shelf_life_days': analysis['shelf_life_days'],
                     'is_expiring_soon': analysis['is_expiring_soon'],
                     'is_expired': analysis['is_expired'],
-                    'notes': analysis['notes']
+                    'notes': analysis['notes'],
+                    'scanned_at': db_record.scanned_at.isoformat()
                 }
             }
 
@@ -78,12 +79,12 @@ class ProduceScanService:
                 'error': str(e)
             }
 
-    def scan_batch_produce(self, produce_list: List[str], session_id: str, user_id: int = None) -> Dict:
+    def scan_batch_produce(self, images: List[str], session_id: str, user_id: int = None) -> Dict:
         """
-        Scan multiple produce items in a batch
+        Scan multiple produce items from images in batch
 
         Args:
-            produce_list: List of produce descriptions
+            images: List of base64 encoded image data
             session_id: Current session ID
             user_id: Optional user ID to associate with scans
 
@@ -91,8 +92,8 @@ class ProduceScanService:
             Dict with all results and aggregated statistics
         """
         try:
-            # Analyze all produce with AI
-            batch_analysis = self.ai_service.batch_analyze_produce(produce_list)
+            # Analyze all produce from images with AI
+            batch_analysis = self.ai_service.batch_analyze_produce_from_images(images)
 
             # Save each result to database
             saved_results = []

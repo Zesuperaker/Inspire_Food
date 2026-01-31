@@ -37,26 +37,66 @@
         <!-- Scanner Section -->
         <div class="mb-12">
             <h1 class="text-5xl font-900 tracking-tighter mb-2">Scan Produce</h1>
-            <p class="text-slate-400 text-sm uppercase tracking-widest font-800">Analyze freshness with AI</p>
+            <p class="text-slate-400 text-sm uppercase tracking-widest font-800">Capture or upload images for AI analysis</p>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-12">
             <!-- Single Scan Card -->
             <div class="lg:col-span-2 pop-card !opacity-100 !transform-none">
-                <h2 class="text-2xl font-900 mb-6">Single Item Scan</h2>
+                <h2 class="text-2xl font-900 mb-6">Scan Produce</h2>
                 <div class="space-y-4">
-                    <div>
+                    <!-- Camera Preview -->
+                    <div id="camera-section" class="hidden">
                         <label class="text-[10px] font-900 uppercase tracking-widest text-slate-400 ml-2 block mb-2">
-                            Produce Description
+                            Camera Preview
                         </label>
-                        <textarea id="produce-description" placeholder="e.g., Red apple, firm, no bruises..."
-                            class="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 focus:outline-none focus:border-emerald-500 transition-colors text-sm h-24 resize-none"
-                            required></textarea>
+                        <div class="relative rounded-2xl overflow-hidden bg-black mb-4">
+                            <video id="camera-preview" class="w-full h-64 object-cover" playsinline></video>
+                            <div class="absolute inset-0 border-2 border-emerald-500/50 rounded-2xl pointer-events-none"></div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="capturePhoto()" class="flex-1 bg-emerald-500 text-black font-900 py-3 rounded-xl hover:scale-[1.02] transition-transform">
+                                📸 Capture
+                            </button>
+                            <button onclick="stopCamera()" class="flex-1 bg-red-500/20 text-red-400 font-900 py-3 rounded-xl hover:bg-red-500 hover:text-white transition-all">
+                                Cancel
+                            </button>
+                        </div>
                     </div>
-                    <button onclick="scanSingle()"
-                        class="w-full primary-btn-animated !padding-[1rem_2.5rem] bg-emerald-500 text-black font-900 rounded-xl py-3">
-                        <span id="scan-btn-text">Scan Item</span>
-                    </button>
+
+                    <!-- Image Preview after capture -->
+                    <div id="image-preview-section" class="hidden">
+                        <label class="text-[10px] font-900 uppercase tracking-widest text-slate-400 ml-2 block mb-2">
+                            Preview
+                        </label>
+                        <img id="image-preview" class="w-full h-64 object-cover rounded-2xl mb-4" />
+                        <div class="flex gap-2">
+                            <button onclick="scanSingle()" class="flex-1 bg-emerald-500 text-black font-900 py-3 rounded-xl hover:scale-[1.02] transition-transform">
+                                <span id="scan-btn-text">Analyze Image</span>
+                            </button>
+                            <button onclick="clearImage()" class="flex-1 bg-slate-500/20 text-slate-400 font-900 py-3 rounded-xl hover:bg-slate-500 hover:text-white transition-all">
+                                Clear
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Upload/Camera Options -->
+                    <div id="input-options" class="space-y-3">
+                        <div>
+                            <label class="text-[10px] font-900 uppercase tracking-widest text-slate-400 ml-2 block mb-2">
+                                Choose Method
+                            </label>
+                            <div class="flex gap-2">
+                                <button onclick="startCamera()" class="flex-1 bg-blue-500/10 text-blue-400 border border-blue-500/20 px-4 py-3 rounded-xl font-900 text-xs uppercase tracking-widest hover:bg-blue-500 hover:text-black transition-all">
+                                    📷 Camera
+                                </button>
+                                <label class="flex-1 bg-purple-500/10 text-purple-400 border border-purple-500/20 px-4 py-3 rounded-xl font-900 text-xs uppercase tracking-widest hover:bg-purple-500 hover:text-black transition-all cursor-pointer flex items-center justify-center">
+                                    📁 Upload
+                                    <input type="file" id="image-upload" accept="image/*" onchange="handleImageUpload(event)" class="hidden" />
+                                </label>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -86,16 +126,21 @@
             <div class="space-y-4">
                 <div>
                     <label class="text-[10px] font-900 uppercase tracking-widest text-slate-400 ml-2 block mb-2">
-                        Add Items (one per line)
+                        Upload Multiple Images
                     </label>
-                    <textarea id="batch-items" placeholder="Red apple, firm&#10;Banana, yellow&#10;Spinach, wilted..."
-                        class="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 focus:outline-none focus:border-emerald-500 transition-colors text-sm h-32 resize-none"
-                        required></textarea>
+                    <label class="w-full bg-white/5 border-2 border-dashed border-white/10 rounded-2xl px-5 py-8 flex flex-col items-center justify-center cursor-pointer hover:border-emerald-500 transition-colors">
+                        📸 Click to select images or drag and drop
+                        <input type="file" id="batch-images" accept="image/*" multiple onchange="handleBatchImages(event)" class="hidden" />
+                        <p class="text-xs text-slate-400 mt-2">(Select 2 or more images)</p>
+                    </label>
                 </div>
-                <button onclick="scanBatch()"
-                    class="w-full primary-btn-animated !padding-[1rem_2.5rem] bg-emerald-500 text-black font-900 rounded-xl py-3">
-                    <span id="batch-btn-text">Scan Batch</span>
-                </button>
+                <div id="batch-preview" class="hidden">
+                    <p class="text-[10px] font-900 uppercase tracking-widest text-slate-400 mb-2">Selected Images</p>
+                    <div id="batch-thumbnails" class="grid grid-cols-3 gap-2 mb-4"></div>
+                    <button onclick="scanBatch()" class="w-full bg-emerald-500 text-black font-900 py-3 rounded-xl hover:scale-[1.02] transition-transform">
+                        <span id="batch-btn-text">Analyze Batch</span>
+                    </button>
+                </div>
             </div>
         </div>
 

@@ -1,35 +1,36 @@
 import json
 import os
+import base64
 from typing import Dict, List
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import PromptTemplate
+from langchain_core.messages import HumanMessage
 
 
 class AIService:
-    """Service for handling AI operations with LangChain and Gemini via OpenRouter"""
+    """Service for handling AI operations with LangChain and Gemini Vision via OpenRouter"""
 
     def __init__(self):
-        """Initialize LangChain with OpenRouter as provider for Gemini"""
+        """Initialize LangChain with OpenRouter as provider for Gemini Vision"""
         self.api_key = os.getenv('OPENROUTER_API_KEY')
         if not self.api_key:
             raise ValueError("OPENROUTER_API_KEY not set in environment variables")
 
-        # Initialize ChatOpenAI with OpenRouter endpoint
-        # Using Gemini through OpenRouter
+        # Initialize ChatOpenAI with OpenRouter endpoint for vision
         self.llm = ChatOpenAI(
-            model="google/gemini-3-flash-preview",  # Gemini model via OpenRouter
+            model="google/gemini-2-flash-exp",  # Gemini 2 Flash with vision capabilities
             api_key=self.api_key,
             base_url="https://openrouter.io/api/v1",
-            temperature=0.3,  # Low temperature for consistent JSON output
+            temperature=0.3,
             max_tokens=2000
         )
 
-    def analyze_produce(self, produce_description: str) -> Dict:
+    def analyze_produce_from_image(self, image_data: str) -> Dict:
         """
-        Analyze produce using Gemini to determine shelf life
+        Analyze produce from image using Gemini Vision
 
         Args:
-            produce_description: Description of the produce (name, appearance, etc.)
+            image_data: Base64 encoded image data (data:image/jpeg;base64,...)
 
         Returns:
             Dict with keys: {
@@ -40,37 +41,46 @@ class AIService:
                 'notes': str
             }
         """
-
-        prompt_template = PromptTemplate(
-            input_variables=["produce_description"],
-            template="""You are an expert food scientist analyzing produce freshness.
-
-            Given this description of produce: {produce_description}
-
-            Analyze the produce and return a JSON response with EXACTLY this structure:
-            {{
-                "produce_name": "name of the produce",
-                "shelf_life_days": estimated days until expiration (integer, minimum 0),
-                "is_expiring_soon": true if 3 days or less remaining, false otherwise,
-                "is_expired": true if 0 or fewer days, false otherwise,
-                "notes": "brief assessment of freshness"
-            }}
-
-            Rules:
-            - shelf_life_days must be an integer between 0 and 30
-            - is_expiring_soon is true when shelf_life_days <= 3
-            - is_expired is true when shelf_life_days <= 0
-            - Provide realistic estimates based on typical produce shelf lives
-            - Return ONLY valid JSON, no additional text
-            """
-        )
-
         try:
-            # Create the chain
-            chain = prompt_template | self.llm
+            # Extract base64 data if it has data URI prefix
+            if ',' in image_data:
+                image_data = image_data.split(',')[1]
 
-            # Invoke the chain
-            response = chain.invoke({"produce_description": produce_description})
+            # Create message with image
+            message = HumanMessage(
+                content=[
+                    {
+                        "type": "image_url",
+                        "image_url": {
+                            "url": f"data:image/jpeg;base64,{image_data}"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "text": """You are an expert food scientist analyzing produce freshness from images.
+
+Analyze the produce in this image and return a JSON response with EXACTLY this structure:
+{
+    "produce_name": "name of the produce identified",
+    "shelf_life_days": estimated days until expiration (integer, minimum 0),
+    "is_expiring_soon": true if 3 days or less remaining, false otherwise,
+    "is_expired": true if 0 or fewer days, false otherwise,
+    "notes": "brief assessment of freshness based on visual appearance"
+}
+
+Rules:
+- shelf_life_days must be an integer between 0 and 30
+- is_expiring_soon is true when shelf_life_days <= 3
+- is_expired is true when shelf_life_days <= 0
+- Analyze based on color, texture, visible damage, ripeness level
+- Provide realistic estimates based on typical produce shelf lives
+- Return ONLY valid JSON, no additional text"""
+                    }
+                ]
+            )
+
+            # Invoke the model
+            response = self.llm.invoke([message])
 
             # Extract content from the response
             if hasattr(response, 'content'):
@@ -94,14 +104,14 @@ class AIService:
         except json.JSONDecodeError as e:
             raise Exception(f"Failed to parse AI response as JSON: {str(e)}")
         except Exception as e:
-            raise Exception(f"Error analyzing produce: {str(e)}")
+            raise Exception(f"Error analyzing produce image: {str(e)}")
 
-    def batch_analyze_produce(self, produce_list: List[str]) -> Dict:
+    def batch_analyze_produce_from_images(self, images: List[str]) -> Dict:
         """
-        Analyze multiple produce items in batch
+        Analyze multiple produce items from images in batch
 
         Args:
-            produce_list: List of produce descriptions
+            images: List of base64 encoded image data
 
         Returns:
             Dict with 'results' (list of analyses) and 'summary' (aggregate stats)
@@ -110,9 +120,9 @@ class AIService:
         expiring_soon_count = 0
         expired_count = 0
 
-        for produce_desc in produce_list:
+        for image_data in images:
             try:
-                analysis = self.analyze_produce(produce_desc)
+                analysis = self.analyze_produce_from_image(image_data)
                 results.append(analysis)
 
                 if analysis.get('is_expiring_soon'):
@@ -123,18 +133,18 @@ class AIService:
             except Exception as e:
                 # Log error but continue processing
                 results.append({
-                    'produce_name': produce_desc,
+                    'produce_name': 'Unknown',
                     'shelf_life_days': 0,
                     'is_expiring_soon': True,
                     'is_expired': False,
-                    'notes': f'Error analyzing: {str(e)}'
+                    'notes': f'Error analyzing image: {str(e)}'
                 })
                 expiring_soon_count += 1
 
         return {
             'results': results,
             'summary': {
-                'total_scanned': len(produce_list),
+                'total_scanned': len(images),
                 'expiring_soon_count': expiring_soon_count,
                 'expired_count': expired_count
             }

@@ -2,6 +2,9 @@ let currentUser = null;
 let currentSession = null;
 let batchMode = false;
 let isScanning = false;
+let currentImageBase64 = null;
+let cameraStream = null;
+let batchImages = [];
 
 async function initializeDashboard() {
     try {
@@ -48,28 +51,100 @@ async function startNewSession() {
     }
 }
 
+// ==================== CAMERA FUNCTIONS ====================
+
+async function startCamera() {
+    try {
+        const video = document.getElementById('camera-preview');
+        cameraStream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: 'environment' }
+        });
+
+        video.srcObject = cameraStream;
+        document.getElementById('input-options').classList.add('hidden');
+        document.getElementById('camera-section').classList.remove('hidden');
+
+        showNotification('Camera ready', 'success');
+    } catch (error) {
+        showNotification('Camera access denied: ' + error.message, 'error');
+    }
+}
+
+function stopCamera() {
+    if (cameraStream) {
+        cameraStream.getTracks().forEach(track => track.stop());
+        cameraStream = null;
+    }
+    document.getElementById('camera-section').classList.add('hidden');
+    document.getElementById('input-options').classList.remove('hidden');
+    document.getElementById('image-preview-section').classList.add('hidden');
+}
+
+function capturePhoto() {
+    const video = document.getElementById('camera-preview');
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(video, 0, 0);
+
+    currentImageBase64 = canvas.toDataURL('image/jpeg');
+    displayImagePreview();
+}
+
+function displayImagePreview() {
+    document.getElementById('camera-section').classList.add('hidden');
+    document.getElementById('image-preview-section').classList.remove('hidden');
+    document.getElementById('image-preview').src = currentImageBase64;
+}
+
+function handleImageUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        currentImageBase64 = e.target.result;
+        stopCamera();
+        displayImagePreview();
+        showNotification('Image ready to scan', 'success');
+    };
+    reader.readAsDataURL(file);
+}
+
+function clearImage() {
+    currentImageBase64 = null;
+    document.getElementById('image-preview').src = '';
+    document.getElementById('image-preview-section').classList.add('hidden');
+    document.getElementById('input-options').classList.remove('hidden');
+    document.getElementById('image-upload').value = '';
+    stopCamera();
+}
+
+// ==================== SCAN FUNCTIONS ====================
+
 async function scanSingle() {
     if (!currentSession) {
         showNotification('Start a session first', 'warning');
         return;
     }
 
-    const description = document.getElementById('produce-description').value.trim();
-    if (!description) {
-        showNotification('Please enter a produce description', 'warning');
+    if (!currentImageBase64) {
+        showNotification('Please capture or upload an image', 'warning');
         return;
     }
 
     isScanning = true;
     const btn = document.getElementById('scan-btn-text');
-    btn.innerText = 'Scanning...';
+    btn.innerText = 'Analyzing...';
 
     try {
         const response = await fetch('/api/scan/single', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                produce_description: description,
+                image_data: currentImageBase64,
                 session_id: currentSession
             })
         });
@@ -77,8 +152,8 @@ async function scanSingle() {
         const data = await response.json();
         if (data.success) {
             displaySingleResult(data.data);
-            document.getElementById('produce-description').value = '';
-            showNotification('Produce scanned successfully', 'success');
+            clearImage();
+            showNotification('Produce analyzed successfully', 'success');
         } else {
             showNotification('Scan failed: ' + data.error, 'error');
         }
@@ -86,7 +161,66 @@ async function scanSingle() {
         showNotification('Error scanning: ' + error.message, 'error');
     } finally {
         isScanning = false;
-        btn.innerText = 'Scan Item';
+        btn.innerText = 'Analyze Image';
+    }
+}
+
+// ==================== BATCH FUNCTIONS ====================
+
+function handleBatchImages(event) {
+    const files = Array.from(event.target.files);
+    if (files.length < 2) {
+        showNotification('Please select at least 2 images', 'warning');
+        return;
+    }
+
+    batchImages = [];
+    const thumbnails = document.getElementById('batch-thumbnails');
+    thumbnails.innerHTML = '';
+
+    let loadedCount = 0;
+
+    files.forEach((file, index) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            batchImages.push(e.target.result);
+
+            const thumb = document.createElement('div');
+            thumb.className = 'relative';
+            thumb.innerHTML = `
+                <img src="${e.target.result}" class="w-full h-20 object-cover rounded-lg" />
+                <button onclick="removeBatchImage(${index})" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center font-bold text-xs hover:bg-red-600">✕</button>
+            `;
+            thumbnails.appendChild(thumb);
+
+            loadedCount++;
+            if (loadedCount === files.length) {
+                document.getElementById('batch-preview').classList.remove('hidden');
+                showNotification(`${files.length} images loaded`, 'success');
+            }
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+function removeBatchImage(index) {
+    batchImages.splice(index, 1);
+    if (batchImages.length === 0) {
+        document.getElementById('batch-preview').classList.add('hidden');
+        document.getElementById('batch-images').value = '';
+    } else {
+        document.getElementById('batch-images').value = '';
+        const thumbnails = document.getElementById('batch-thumbnails');
+        thumbnails.innerHTML = '';
+        batchImages.forEach((img, i) => {
+            const thumb = document.createElement('div');
+            thumb.className = 'relative';
+            thumb.innerHTML = `
+                <img src="${img}" class="w-full h-20 object-cover rounded-lg" />
+                <button onclick="removeBatchImage(${i})" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center font-bold text-xs hover:bg-red-600">✕</button>
+            `;
+            thumbnails.appendChild(thumb);
+        });
     }
 }
 
@@ -96,28 +230,21 @@ async function scanBatch() {
         return;
     }
 
-    const itemsText = document.getElementById('batch-items').value.trim();
-    if (!itemsText) {
-        showNotification('Please enter at least one produce item', 'warning');
-        return;
-    }
-
-    const produceList = itemsText.split('\n').filter(item => item.trim().length > 0);
-    if (produceList.length === 0) {
-        showNotification('Please enter at least one produce item', 'warning');
+    if (batchImages.length === 0) {
+        showNotification('Please select images to scan', 'warning');
         return;
     }
 
     isScanning = true;
     const btn = document.getElementById('batch-btn-text');
-    btn.innerText = 'Scanning...';
+    btn.innerText = 'Analyzing...';
 
     try {
         const response = await fetch('/api/scan/batch', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                produce_list: produceList,
+                images: batchImages,
                 session_id: currentSession
             })
         });
@@ -125,8 +252,11 @@ async function scanBatch() {
         const data = await response.json();
         if (data.success) {
             displayBatchResults(data);
-            document.getElementById('batch-items').value = '';
-            showNotification(`Scanned ${data.scans.length} items successfully`, 'success');
+            batchImages = [];
+            document.getElementById('batch-images').value = '';
+            document.getElementById('batch-preview').classList.add('hidden');
+            document.getElementById('batch-thumbnails').innerHTML = '';
+            showNotification(`Analyzed ${data.scans.length} images successfully`, 'success');
         } else {
             showNotification('Batch scan failed: ' + data.error, 'error');
         }
@@ -134,9 +264,11 @@ async function scanBatch() {
         showNotification('Error scanning batch: ' + error.message, 'error');
     } finally {
         isScanning = false;
-        btn.innerText = 'Scan Batch';
+        btn.innerText = 'Analyze Batch';
     }
 }
+
+// ==================== RESULT DISPLAY ====================
 
 function displaySingleResult(result) {
     document.getElementById('results-section').classList.remove('hidden');
@@ -297,9 +429,6 @@ function clearResults() {
 function toggleBatchMode() {
     batchMode = !batchMode;
     document.getElementById('batch-section').classList.toggle('hidden');
-    if (batchMode) {
-        document.getElementById('batch-items').focus();
-    }
 }
 
 async function logout() {
@@ -347,3 +476,10 @@ setInterval(() => {
         loadRecentScans();
     }
 }, 30000);
+
+// Cleanup camera when page unloads
+window.addEventListener('beforeunload', () => {
+    if (cameraStream) {
+        cameraStream.getTracks().forEach(track => track.stop());
+    }
+});
