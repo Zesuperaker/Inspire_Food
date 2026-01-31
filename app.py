@@ -2,6 +2,7 @@ from flask import Flask, jsonify, render_template, redirect
 from flask_cors import CORS
 import os
 from dotenv import load_dotenv
+import logging
 
 # Load environment variables
 load_dotenv()
@@ -23,6 +24,16 @@ def create_app(config_name: str = 'development'):
     """
 
     app = Flask(__name__)
+
+    # ==================== LOGGING CONFIGURATION ====================
+    if config_name == 'development':
+        logging.basicConfig(
+            level=logging.DEBUG,
+            format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        )
+        app.logger.setLevel(logging.DEBUG)
+        # Get loggers for routes
+        logging.getLogger('backend.routes').setLevel(logging.DEBUG)
 
     # ==================== CONFIGURATION ====================
 

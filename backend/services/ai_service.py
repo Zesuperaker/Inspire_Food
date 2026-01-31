@@ -18,7 +18,7 @@ class AIService:
 
         # Initialize ChatOpenAI with OpenRouter endpoint for vision
         self.llm = ChatOpenAI(
-            model="google/gemini-2-flash-exp",  # Gemini 2 Flash with vision capabilities
+            model="google/gemini-3-flash-preview",  # Gemini 2 Flash with vision capabilities
             api_key=self.api_key,
             base_url="https://openrouter.io/api/v1",
             temperature=0.3,
