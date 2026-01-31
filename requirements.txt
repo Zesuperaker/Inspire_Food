@@ -1,0 +1,8 @@
+Flask>=2.3.3
+Flask-SQLAlchemy>=3.0.5
+Flask-Security-Too==5.7.1
+python-dotenv>=1.0.0
+Werkzeug>=2.3.7
+flask_cors==6.0.2
+langchain_openai==1.1.7
+langchain==1.2.7
