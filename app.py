@@ -41,6 +41,11 @@ def create_app(config_name: str = 'development'):
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['JSON_SORT_KEYS'] = False
 
+    # ==================== JSON & REQUEST SIZE LIMITS ====================
+    # Allow larger JSON payloads for image data (base64 encoded)
+    app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50MB max
+    app.config['JSON_MAX_SIZE'] = 50 * 1024 * 1024  # 50MB max for JSON
+
     # Flask-Security configuration
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production')
     app.config['SECURITY_PASSWORD_SALT'] = os.getenv('SECURITY_PASSWORD_SALT', 'dev-salt-change-in-production')
@@ -131,6 +136,20 @@ def create_app(config_name: str = 'development'):
             'success': False,
             'error': 'Endpoint not found'
         }), 404
+
+    @app.errorhandler(413)
+    def request_entity_too_large(error):
+        return jsonify({
+            'success': False,
+            'error': 'Request payload too large. Max size is 50MB.'
+        }), 413
+
+    @app.errorhandler(400)
+    def bad_request(error):
+        return jsonify({
+            'success': False,
+            'error': 'Bad request. Check your JSON format.'
+        }), 400
 
     @app.errorhandler(500)
     def internal_error(error):
