@@ -10,6 +10,7 @@ scan_bp = Blueprint('scan', __name__, url_prefix='/api/scan')
 scan_service = ProduceScanService()
 
 
+
 @scan_bp.route('/start-session', methods=['POST'])
 @login_required  # Require authentication
 def start_session():
@@ -362,13 +363,26 @@ def get_current_user():
         'last_login_at': current_user.last_login_at.isoformat() if current_user.last_login_at else None
     }), 200
     
+business_dashboard_bp = Blueprint(
+    'business_dashboard',
+    __name__,
+    url_prefix='/api'
+)
+
+shopper_dashboard_bp = Blueprint(
+    'shopper_dashboard',
+    __name__,
+    url_prefix='/api'
+)
+
+    
 @business_dashboard_bp.route('/business/dashboard')
 @login_required
 @roles_required('business')
 def business_dashboard():
     pass
 
-@shope_dashboard_bp.route('/shop/dashboard')
+@shopper_dashboard_bp.route('/shop/dashboard')
 @login_required
 @roles_required('shopper')
 def shopper_dashboard():

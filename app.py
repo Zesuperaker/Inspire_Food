@@ -8,7 +8,7 @@ load_dotenv()
 
 from backend.extensions import business_user as db, security, init_user_datastore
 from backend.models import User, Role
-from backend.routes import scan_bp, auth_bp
+from backend.routes import scan_bp, auth_bp, shopper_dashboard_bp, business_dashboard_bp
 
 
 def create_app(config_name: str = 'development'):
