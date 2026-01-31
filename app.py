@@ -40,7 +40,7 @@ def create_app(config_name: str = 'development'):
     # Database configuration
     if config_name == 'testing':
         app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
-        app.config['TESTING'] = True
+        app.config['TESTING'] = False
     elif config_name == 'production':
         app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
             'DATABASE_URL',
@@ -174,4 +174,4 @@ def create_app(config_name: str = 'development'):
 
 if __name__ == '__main__':
     app = create_app('development')
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=False, host='0.0.0.0', port=5000)
