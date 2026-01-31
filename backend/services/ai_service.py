@@ -17,7 +17,6 @@ class AIService:
             raise ValueError("OPENROUTER_API_KEY not set in environment variables")
 
         # Initialize ChatOpenAI with OpenRouter endpoint
-        # Pass api_key and base_url directly - headers will be sent via environment or default
         self.llm = ChatOpenAI(
             model="google/gemini-3-flash-preview",
             api_key=self.api_key,
@@ -83,14 +82,38 @@ Rules:
             # Invoke the model
             response = self.llm.invoke([message])
 
-            # Extract content from the response
+            # Extract content from the response - handle AIMessage objects properly
             if hasattr(response, 'content'):
                 content = response.content
             else:
                 content = str(response)
 
-            # Parse the JSON response
-            produce_data = json.loads(content)
+            # Ensure content is a string and not empty
+            if not content or not isinstance(content, str):
+                raise ValueError(f"Invalid response from AI model: {response}")
+
+            # Clean any potential whitespace or formatting issues
+            content = content.strip()
+            if not content:
+                raise ValueError("AI model returned empty response")
+
+            # Strip markdown code blocks if present (```json ... ```)
+            if content.startswith("```"):
+                # Remove opening markdown code block
+                content = content.split("```", 2)[1]
+                # Remove language specifier if present (e.g., "json")
+                if content.startswith("json"):
+                    content = content[4:]
+                content = content.strip()
+
+            if content.endswith("```"):
+                content = content[:-3].strip()
+
+            # Parse the JSON response with better error handling
+            try:
+                produce_data = json.loads(content)
+            except json.JSONDecodeError as e:
+                raise ValueError(f"AI response is not valid JSON. Response: {content[:500]}") from e
 
             # Validate required fields
             required_fields = ['produce_name', 'shelf_life_days', 'is_expiring_soon', 'is_expired', 'notes']
