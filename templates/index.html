@@ -28,7 +28,7 @@
                 Waste Paradox</p>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div onclick="portalNavigate('shoppers')" class="pop-card group cursor-pointer">
+                <div onclick="openAuth('Shopper')" class="pop-card group cursor-pointer">
                     <div class="text-4xl mb-6">📸</div>
                     <h3 class="text-2xl font-900 mb-2 group-hover:text-emerald-400 transition-colors">I am a Shopper
                     </h3>
@@ -36,7 +36,7 @@
                         notifications.</p>
                     <div class="pop-learn-more mt-6">Open Dashboard</div>
                 </div>
-                <div onclick="portalNavigate('retailers')" class="pop-card group cursor-pointer">
+                <div onclick="openAuth('Retailer')" class="pop-card group cursor-pointer">
                     <div class="text-4xl mb-6">🤖</div>
                     <h3 class="text-2xl font-900 mb-2 group-hover:text-emerald-400 transition-colors">I am a Retailer
                     </h3>
@@ -58,21 +58,42 @@
             <p id="auth-subtitle" class="text-sm text-slate-400 mb-8 uppercase tracking-widest font-800">Enter
                 Credentials</p>
 
-            <form class="space-y-4" onsubmit="event.preventDefault();">
+            <form id="auth-form" class="space-y-4">
                 <div>
                     <label class="text-[10px] font-900 uppercase tracking-widest text-slate-500 ml-2">Email
                         Address</label>
-                    <input type="email" placeholder="name@company.com"
+                    <input id="auth-email" type="email" placeholder="name@example.com"
+                        class="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 focus:outline-none focus:border-emerald-500 transition-colors text-sm"
+                        required>
+                </div>
+
+                <div id="username-field" style="display: none;">
+                    <label class="text-[10px] font-900 uppercase tracking-widest text-slate-500 ml-2">Username</label>
+                    <input id="auth-username" type="text" placeholder="Choose a username"
                         class="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 focus:outline-none focus:border-emerald-500 transition-colors text-sm">
                 </div>
+
                 <div>
                     <label class="text-[10px] font-900 uppercase tracking-widest text-slate-500 ml-2">Password</label>
-                    <input type="password" placeholder="••••••••"
-                        class="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 focus:outline-none focus:border-emerald-500 transition-colors text-sm">
+                    <input id="auth-password" type="password" placeholder="••••••••"
+                        class="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 focus:outline-none focus:border-emerald-500 transition-colors text-sm"
+                        required>
                 </div>
-                <button
-                    class="w-full bg-emerald-500 text-[#1a1a1a] font-900 uppercase tracking-widest py-4 rounded-2xl hover:scale-[1.02] transition-transform active:scale-95">Continue</button>
+
+                <button id="auth-submit" type="submit"
+                    class="w-full bg-emerald-500 text-[#1a1a1a] font-900 uppercase tracking-widest py-4 rounded-2xl hover:scale-[1.02] transition-transform active:scale-95">Sign
+                    In</button>
             </form>
+
+            <div class="border-t border-white/10 mt-6 pt-6">
+                <p class="text-center text-slate-400 text-xs mb-3">
+                    <span id="toggle-text">Don't have an account?</span>
+                </p>
+                <button id="form-toggle" type="button"
+                    class="w-full border-2 border-emerald-500 text-emerald-400 font-900 uppercase tracking-widest py-3 rounded-2xl hover:bg-emerald-500 hover:text-[#1a1a1a] transition-all">
+                    Sign Up
+                </button>
+            </div>
         </div>
     </div>
 
@@ -92,9 +113,9 @@
             </div>
         </nav>
         <div class="w-32 flex justify-end">
-            <button onclick="togglePortal()"
-                class="bg-white/5 hover:bg-emerald-500 hover:text-[#1a1a1a] border border-white/10 px-6 py-2.5 rounded-full text-[10px] font-900 uppercase tracking-widest transition-all">Sign
-                In</button>
+            <div id="sign-in-btn" class="bg-white/5 hover:bg-emerald-500 hover:text-[#1a1a1a] border border-white/10 px-6 py-2.5 rounded-full text-[10px] font-900 uppercase tracking-widest transition-all">
+                Sign In
+            </div>
         </div>
     </header>
 
@@ -113,8 +134,8 @@
                     between invisible surplus and community need.
                 </p>
                 <div class="flex gap-4">
-                    <button class="primary-btn-animated" onclick="openAuth('Shopper')">Track My Essentials</button>
-                    <button class="secondary-btn-animated" onclick="openAuth('Retailer')">Partner Portal</button>
+                    <button onclick="openAuth('Shopper')" class="primary-btn-animated">Track My Essentials</button>
+                    <button onclick="openAuth('Retailer')" class="secondary-btn-animated">Partner Portal</button>
                 </div>
             </div>
         </section>

@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, render_template
 from flask_cors import CORS
 import os
 from dotenv import load_dotenv
@@ -88,9 +88,14 @@ def create_app(config_name: str = 'development'):
 
     # ==================== ROUTES ====================
 
-    # Root route
+    # Root route - Serve index.html
     @app.route('/', methods=['GET'])
     def root():
+        return render_template('index.html')
+
+    # API info endpoint
+    @app.route('/api', methods=['GET'])
+    def api_info():
         return {
             'message': 'Food Scanning API with Authentication',
             'version': '1.0.0',
