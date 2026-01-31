@@ -8,26 +8,27 @@ from langchain_core.messages import HumanMessage
 
 
 class AIService:
-    """Service for handling AI operations with LangChain and Gemini Vision via OpenRouter"""
+    """Service for handling AI operations with LangChain and vision model via OpenRouter"""
 
     def __init__(self):
-        """Initialize LangChain with OpenRouter as provider for Gemini Vision"""
+        """Initialize LangChain with OpenRouter as provider"""
         self.api_key = os.getenv('OPENROUTER_API_KEY')
         if not self.api_key:
             raise ValueError("OPENROUTER_API_KEY not set in environment variables")
 
-        # Initialize ChatOpenAI with OpenRouter endpoint for vision
+        # Initialize ChatOpenAI with OpenRouter endpoint
+        # Pass api_key and base_url directly - headers will be sent via environment or default
         self.llm = ChatOpenAI(
-            model="google/gemini-3-flash-preview",  # Gemini 2 Flash with vision capabilities
+            model="google/gemini-3-flash-preview",
             api_key=self.api_key,
-            base_url="https://openrouter.io/api/v1",
+            base_url="https://openrouter.ai/api/v1",
             temperature=0.3,
             max_tokens=2000
         )
 
     def analyze_produce_from_image(self, image_data: str) -> Dict:
         """
-        Analyze produce from image using Gemini Vision
+        Analyze produce from image using Claude Vision
 
         Args:
             image_data: Base64 encoded image data (data:image/jpeg;base64,...)
