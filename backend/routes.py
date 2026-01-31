@@ -361,3 +361,15 @@ def get_current_user():
         'created_at': current_user.created_at.isoformat() if current_user.created_at else None,
         'last_login_at': current_user.last_login_at.isoformat() if current_user.last_login_at else None
     }), 200
+    
+@business_dashboard_bp.route('/business/dashboard')
+@login_required
+@roles_required('business')
+def business_dashboard():
+    pass
+
+@shope_dashboard_bp.route('/shop/dashboard')
+@login_required
+@roles_required('shopper')
+def shopper_dashboard():
+    pass

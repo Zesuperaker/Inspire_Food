@@ -33,10 +33,30 @@ function togglePortal() {
     document.getElementById('portal-overlay').classList.toggle('active');
 }
 
+function redirectAfterLogin(user) {
+    if (!user || !user.role) {
+        window.location.href = '/dashboard';
+        return;
+    }
+
+    switch (user.role) {
+        case 'business':
+            window.location.href = '/business/dashboard';
+            break;
+
+        case 'shopper':
+            window.location.href = '/shop/dashboard';
+            break;
+
+        default:
+            window.location.href = '/dashboard';
+    }
+}
+
 function openAuth(role) {
     if (currentUser) {
         // User already logged in, navigate to dashboard
-        window.location.href = '/dashboard';
+        redirectAfterLogin(currentUser);
         return;
     }
 
