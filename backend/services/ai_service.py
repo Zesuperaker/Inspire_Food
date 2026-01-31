@@ -17,7 +17,7 @@ class AIService:
         # Initialize ChatOpenAI with OpenRouter endpoint
         # Using Gemini through OpenRouter
         self.llm = ChatOpenAI(
-            model="google/gemini-2.0-flash-001",  # Gemini model via OpenRouter
+            model="google/gemini-3-flash-preview",  # Gemini model via OpenRouter
             api_key=self.api_key,
             base_url="https://openrouter.io/api/v1",
             temperature=0.3,  # Low temperature for consistent JSON output

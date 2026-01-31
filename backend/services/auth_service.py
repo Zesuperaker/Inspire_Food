@@ -1,4 +1,4 @@
-from backend.extensions import user_datastore
+import backend.extensions
 
 
 class AuthService:
@@ -18,6 +18,7 @@ class AuthService:
         Returns:
             tuple: (user, message) - user object or None, status message
         """
+        user_datastore = backend.extensions.user_datastore
         if user_datastore.find_user(email=email):
             return None, "User with this email already exists"
 
@@ -45,6 +46,7 @@ class AuthService:
         Returns:
             User: User object or None
         """
+        user_datastore = backend.extensions.user_datastore
         return user_datastore.find_user(email=email)
 
     @staticmethod
@@ -58,6 +60,7 @@ class AuthService:
         Returns:
             User: User object or None
         """
+        user_datastore = backend.extensions.user_datastore
         return user_datastore.find_user(id=user_id)
 
     @staticmethod
@@ -72,6 +75,7 @@ class AuthService:
         Returns:
             tuple: (success, message)
         """
+        user_datastore = backend.extensions.user_datastore
         role = user_datastore.find_role(role_name)
         if not role:
             return False, f"Role '{role_name}' not found"
@@ -95,6 +99,7 @@ class AuthService:
         Returns:
             tuple: (role, message) - role object or None, status message
         """
+        user_datastore = backend.extensions.user_datastore
         if user_datastore.find_role(name):
             return None, "Role already exists"
 
@@ -117,6 +122,7 @@ class AuthService:
         Returns:
             tuple: (success, message)
         """
+        user_datastore = backend.extensions.user_datastore
         user.active = False
         user_datastore.put(user)
         user_datastore.commit()
@@ -133,6 +139,7 @@ class AuthService:
         Returns:
             tuple: (success, message)
         """
+        user_datastore = backend.extensions.user_datastore
         user.active = True
         user_datastore.put(user)
         user_datastore.commit()

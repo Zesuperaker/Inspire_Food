@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 from flask_security import login_required, current_user
+from flask_security.utils import verify_password
 from backend.services import ProduceScanService
 from backend.services.auth_service import AuthService
 
@@ -320,7 +321,8 @@ def login():
     if not user:
         return jsonify({'error': 'Invalid email or password'}), 401
 
-    if not user.verify_password(data.get('password')):
+    # Use Flask-Security's verify_password utility
+    if not verify_password(data.get('password'), user.password):
         return jsonify({'error': 'Invalid email or password'}), 401
 
     if not user.active:

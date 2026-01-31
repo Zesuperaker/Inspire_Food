@@ -6,3 +6,5 @@ Werkzeug>=2.3.7
 flask_cors==6.0.2
 langchain_openai==1.1.7
 langchain==1.2.7
+pytest>=7.0.0
+pytest-flask>=1.2.0
