@@ -10,6 +10,7 @@ const sections = document.querySelectorAll('.snap-section');
 let currentUser = null;
 let isRegistering = false;
 
+// Navigation Pill Movement
 function movePill(el) {
     if (!el) return;
     pill.style.width = el.offsetWidth + 'px';
@@ -18,6 +19,7 @@ function movePill(el) {
     el.classList.add('active');
 }
 
+// Link Click Handlers
 const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -29,6 +31,7 @@ const observer = new IntersectionObserver((entries) => {
 }, { threshold: 0.6 });
 sections.forEach(section => observer.observe(section));
 
+// Sign In Portal Toggle
 function togglePortal() {
     document.getElementById('portal-overlay').classList.toggle('active');
 }
@@ -51,6 +54,7 @@ function openAuth(role) {
     updateFormUI();
 }
 
+// Close Auth Modal
 function closeAuth() {
     document.getElementById('auth-modal').classList.remove('active');
     document.getElementById('auth-form').reset();
@@ -58,12 +62,14 @@ function closeAuth() {
     updateFormUI();
 }
 
+// Navigate to Section from Portal
 function portalNavigate(sectionId) {
     togglePortal();
     const targetSection = document.getElementById(sectionId);
     if (targetSection) targetSection.scrollIntoView({ behavior: 'smooth' });
 }
 
+// Update Auth Form UI
 function updateFormUI() {
     const usernameField = document.getElementById('username-field');
     const submitBtn = document.getElementById('auth-submit');
@@ -85,12 +91,14 @@ function updateFormUI() {
     }
 }
 
+// Toggle between Sign In and Register
 function toggleAuthMode() {
     isRegistering = !isRegistering;
     document.getElementById('auth-form').reset();
     updateFormUI();
 }
 
+// Handle Auth Form Submission
 async function handleAuth(e) {
     e.preventDefault();
 
@@ -178,6 +186,7 @@ async function handleAuth(e) {
     }
 }
 
+// Logout Function
 async function logout() {
     try {
         await fetch('/api/auth/logout', {
@@ -193,6 +202,7 @@ async function logout() {
     }
 }
 
+// Update Sign In Button UI
 function updateSignInButton() {
     const signInBtn = document.getElementById('sign-in-btn');
 
@@ -229,6 +239,7 @@ window.addEventListener('load', () => {
     }
 });
 
+// Handle window resize to adjust pill
 window.addEventListener('resize', () => movePill(document.querySelector('.nav-link.active')));
 window.addEventListener('keydown', (e) => {
     if (e.key === "Escape") {
