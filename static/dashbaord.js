@@ -95,6 +95,7 @@ function capturePhoto() {
 
 function displayImagePreview() {
     document.getElementById('camera-section').classList.add('hidden');
+    document.getElementById('input-options').classList.add('hidden');
     document.getElementById('image-preview-section').classList.remove('hidden');
     document.getElementById('image-preview').src = currentImageBase64;
 }
@@ -106,8 +107,19 @@ function handleImageUpload(event) {
     const reader = new FileReader();
     reader.onload = (e) => {
         currentImageBase64 = e.target.result;
-        stopCamera();
-        displayImagePreview();
+
+        // Stop camera if it was running
+        if (cameraStream) {
+            cameraStream.getTracks().forEach(track => track.stop());
+            cameraStream = null;
+        }
+
+        // Hide camera and input options, show image preview
+        document.getElementById('camera-section').classList.add('hidden');
+        document.getElementById('input-options').classList.add('hidden');
+        document.getElementById('image-preview-section').classList.remove('hidden');
+        document.getElementById('image-preview').src = currentImageBase64;
+
         showNotification('Image ready to scan', 'success');
     };
     reader.readAsDataURL(file);
@@ -433,11 +445,16 @@ function toggleBatchMode() {
 
 async function logout() {
     try {
-        await fetch('/api/auth/logout', {
+        const response = await fetch('/api/auth/logout', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' }
         });
-        window.location.href = '/';
+
+        if (response.ok) {
+            window.location.href = '/';
+        } else {
+            showNotification('Logout failed', 'error');
+        }
     } catch (error) {
         showNotification('Logout error: ' + error.message, 'error');
     }
